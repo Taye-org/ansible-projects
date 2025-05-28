@@ -1,6 +1,6 @@
 - name: Deploy Flask app to VM
   hosts: web
-  become: yes
+  become: true
 
   vars_files:
     - secrets.yaml 
