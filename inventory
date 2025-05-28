@@ -1,0 +1,4 @@
+[local]
+localhost ansible_connection=local
+[web]
+192.168.232.128 ansible_user=tayelolu

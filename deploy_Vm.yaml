@@ -1,0 +1,50 @@
+- name: Deploy Flask app to VM
+  hosts: web
+  become: yes
+
+  vars_files:
+    - secrets.yaml 
+
+  tasks:
+    - name: Ensure git is installed
+      apt:
+        name: git
+        state: present
+        update_cache: yes
+
+    - name: Ensure app directory exists
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+
+    - name: Clone Flask app from GitHub
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_dir }}"
+        version: main
+        force: yes
+
+    - name: Install Python 3 venv package    # Install python3-venv package to enable virtual environments
+      apt:
+        name: python3-venv
+        state: present
+
+    - name: Set up virtual environment      # Create a Python virtual environment inside the app directory
+      command: python3 -m venv venv
+      args:
+        chdir: "{{ app_dir }}"
+        creates: "{{ app_dir }}/venv"
+
+    - name: Install Python dependencies
+      pip:
+        requirements: "{{ app_dir }}/requirements.txt"
+        virtualenv: "{{ app_dir }}/venv"
+
+    - name: Run Flask app in background     ## Run app.py in background;nohup prevents it from stopping on logout
+      shell: 
+        nohup {{ app_dir }}/venv/bin/python3 {{ app_dir }}/app.py > app.log 2>&1 &  #  
+      args:
+        chdir: "{{ app_dir }}"

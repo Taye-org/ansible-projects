@@ -1,0 +1,39 @@
+---
+- name: Install Nginx and MySQL, Setup DB
+  hosts: local
+  become: true
+
+  vars_files:
+    - secrets.yaml
+
+  tasks:
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+    - name: Install MySQL Server
+      apt:
+        name: mysql-server 
+        state: present
+    - name: Ensure MySQL service is started
+      service:
+        name: mysql
+        state: started
+        enabled: true
+    - name: Create MySQL Database
+      community.mysql.mysql_db:
+        name: "{{ db_name }}"
+        state: present
+        login_user: "{{mysql_root_user}}"
+        login_password: "{{mysql_root_password}}"
+
+    - name: Create MySQL User
+      community.mysql.mysql_user:
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+        priv: "{{ db_name }}.*:ALL"
+        state: present
+        login_user: "{{mysql_root_user}}"
+        login_password: "{{mysql_root_password}}"     
+       
+    
