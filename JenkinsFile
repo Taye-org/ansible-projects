@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    VM_IP = credentials('VM_IP')                // Your VM IP address from Jenkins credentials
+    VM_IP = credentials('VM_IP')                //  VM IP address from Jenkins credentials
     VAULT_PASS = credentials('ansible-vault-pass') // Vault password stored as a secret text
   }
 
